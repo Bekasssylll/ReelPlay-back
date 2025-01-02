@@ -45,16 +45,6 @@ class SubscriptionServiceSerializer(serializers.ModelSerializer):
         model = SubscriptionService
         fields = "__all__"
 
-    def validate(self, data):
-        user = data['user']
-        type = data['type']
-        if SubscriptionService.objects.filter(user=user, type=type).exists():
-            raise serializers.ValidationError("У вас уже есть подписка на этот сервис.")
-        return data
-
-    def create(self, validated_data):
-        return SubscriptionService.objects.create(**validated_data)
-
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
