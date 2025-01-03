@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSubscription
+from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSubscription, Comment
 
 
 @admin.register(Movie)
 class MovieRegister(admin.ModelAdmin):
-    list_display = ('id','title', 'description', 'author', 'subscription','type')
+    list_display = ('id', 'title', 'description', 'author', 'subscription', 'type')
     list_filter = ('title',)
 
 
@@ -21,9 +21,9 @@ CustomUser = get_user_model()
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ['username', 'email', 'phone',
-                    'subscription']  # Здесь указаны поля, которые вы хотите отображать в списке
-    search_fields = ['username', 'email', 'phone']  # Возможность поиска по этим полям
-    list_filter = ['subscription', 'username', 'phone']  # Фильтрация по полю 'subscription'
+                    'subscription']
+    search_fields = ['username', 'email', 'phone']
+    list_filter = ['subscription', 'username', 'phone']
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
@@ -39,3 +39,9 @@ class SubscriptionServiceAdmin(admin.ModelAdmin):
 class TypeSubscriptionAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('movie', 'user', 'text', 'created_at', 'updated_at')
+    list_filter = ('movie', 'user', 'created_at', 'updated_at')

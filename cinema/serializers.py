@@ -4,13 +4,23 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from cinema.models import Movie, CustomUser, SubscriptionService
+from cinema.models import Movie, CustomUser, SubscriptionService, Comment, TypeSubscription
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')  # Возвращает только имя пользователя
+
+    class Meta:
+        model = Comment
+        fields = ['user', 'movie', 'text']
 
 
 class MovieSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Movie
-        fields = ['title', 'description', 'author']
+        fields = ['title', 'description', 'author', 'comments']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -40,10 +50,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user, access_token
 
 
-class SubscriptionServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubscriptionService
-        fields = "__all__"
+class SubscriptionServiceSerializer(serializers.Serializer):
+    type = serializers.IntegerField()
+
+    def validate_type(self, value):
+        try:
+            type_instance = TypeSubscription.objects.get(id=value)
+        except TypeSubscription.DoesNotExist:
+            raise serializers.ValidationError("Тип подписки с таким ID не существует.")
+        return type_instance
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        type_instance = validated_data['type']
+
+        if SubscriptionService.objects.filter(user=user, type=type_instance).exists():
+            raise serializers.ValidationError("У этого пользователя уже существует подписка.")
+
+        return SubscriptionService.objects.create(user=user, type=type_instance)
 
 
 class ProfileSerializer(serializers.ModelSerializer):

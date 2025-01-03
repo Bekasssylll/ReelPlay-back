@@ -49,5 +49,10 @@ class SubscriptionService(models.Model):
     def __str__(self):
         return "{} for {}".format(self.user, self.type)
 
-# class Activate(models.Model):
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+class Comment(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)

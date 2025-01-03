@@ -5,8 +5,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from cinema.models import Movie, SubscriptionService, TypeSubscription
-from cinema.serializers import MovieSerializer, RegisterSerializer, SubscriptionServiceSerializer, ProfileSerializer
+from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment
+from cinema.serializers import MovieSerializer, RegisterSerializer, SubscriptionServiceSerializer, ProfileSerializer, \
+    CommentSerializer, SubscriptionServiceSerializer
+from django.core.mail import send_mail
+
+from reelsetting.settings import EMAIL_HOST_USER
 
 
 class MovieViewSet(viewsets.ModelViewSet):
@@ -41,6 +45,16 @@ class RegisterApiView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user, access_token = serializer.save()
+            subject = 'Hello!'
+            message = "Регистрация прошла успешно"
+            from_email = EMAIL_HOST_USER
+            recipient_list = [user.email, ]
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=from_email,
+                recipient_list=recipient_list)
+
             return Response({"message": "Успешная регистрация", "Token": access_token, },
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -94,30 +108,15 @@ class ActivateSubscription(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user
-        type_id = request.data.get('type')
+        serializer = SubscriptionServiceSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Подписка создана"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            type_id = int(type_id)
-        except (ValueError, TypeError):
-            return Response(
-                {"message": "Неверный формат type. Ожидается числовое значение."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
-        try:
-            type_instance = TypeSubscription.objects.get(id=type_id)
-        except TypeSubscription.DoesNotExist:
-            return Response(
-                {"message": "Тип подписки с таким ID не существует."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if SubscriptionService.objects.filter(user=user, type=type_instance).exists():
-            return Response(
-                {"message": "У этого пользователя уже существует подписка."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        SubscriptionService.objects.create(user=user, type=type_instance)
-        return Response({"message": "Подписка создана"}, status=status.HTTP_201_CREATED)
+class CommentViewSet(viewsets.ModelViewSet):
+    def perform_create(self, serializer):
+        serializer.save(user = self.request.user)
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
