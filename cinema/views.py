@@ -20,12 +20,24 @@ class MovieViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         user = request.user
         movie = self.get_object()
+
         if movie.type:
-            if not SubscriptionService.objects.filter(user=user, type=movie.type).exists():
+            user_subscription = SubscriptionService.objects.filter(user=user).order_by('-type__level').first()
+
+            if not user_subscription:
                 return Response(
-                    {"message": "У вас нет доступа к этому фильму. Требуется подписка."},
+                    {"message": "У вас нет подписки для доступа к этому фильму."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
+
+            if user_subscription.type.level >= movie.type.level:
+                return super().retrieve(request, *args, **kwargs)
+
+            return Response(
+                {"message": "У вас недостаточный уровень подписки для просмотра этого фильма."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         return super().retrieve(request, *args, **kwargs)
 
     def get_permissions(self):
@@ -117,6 +129,6 @@ class ActivateSubscription(APIView):
 
 class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
-        serializer.save(user = self.request.user)
+        serializer.save(user=self.request.user)
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer

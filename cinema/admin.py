@@ -6,8 +6,10 @@ from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSu
 
 @admin.register(Movie)
 class MovieRegister(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'author', 'subscription', 'type')
+    list_display = ('id', 'title', 'description', 'author', 'subscription', 'type','type_level')
     list_filter = ('title',)
+    def type_level(self,obj):
+        return obj.type.level
 
 
 @admin.register(Author)
@@ -37,7 +39,7 @@ class SubscriptionServiceAdmin(admin.ModelAdmin):
 
 @admin.register(TypeSubscription)
 class TypeSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('id','name','level',)
     list_filter = ('name',)
 
 

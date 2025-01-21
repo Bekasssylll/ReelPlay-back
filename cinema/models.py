@@ -16,6 +16,7 @@ class Author(models.Model):
 
 class TypeSubscription(models.Model):
     name = models.CharField(max_length=25)
+    level = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return "{}".format(self.name)
@@ -28,7 +29,7 @@ class Movie(models.Model):
     ]
 
     title = models.CharField(max_length=25)
-    type = models.ForeignKey(TypeSubscription, on_delete=models.CASCADE)
+    type = models.ForeignKey(TypeSubscription, on_delete=models.CASCADE, default=4)
     description = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     subscription = models.BooleanField(default=False)
