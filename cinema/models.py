@@ -33,6 +33,7 @@ class Movie(models.Model):
     description = models.TextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     subscription = models.BooleanField(default=False)
+    video_url = models.URLField(null=True, blank=True)
     category = models.CharField(
         max_length=10,
         choices=CATEGORY_CHOICES,
