@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment
+from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment, FavouriteMovie
 from cinema.serializers import MovieSerializer, RegisterSerializer, SubscriptionServiceSerializer, ProfileSerializer, \
     CommentSerializer, SubscriptionServiceSerializer
 from django.core.mail import send_mail
@@ -130,5 +130,37 @@ class ActivateSubscription(APIView):
 class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+
+class AddFavouriteMovie(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        favourite_movies = FavouriteMovie.objects.filter(user=user).select_related('movie')
+
+        if not favourite_movies.exists():
+            return Response({'message': "У вас нет любимых фильмов"}, status=404)
+
+        return Response({'List': [fav.movie.title for fav in favourite_movies]})
+
+    def post(self, request):
+        user = request.user
+        movie_id = request.data.get('movie')
+
+        if not movie_id:
+            return Response({'error': "Вы не указали фильм"}, status=400)
+
+        try:
+            movie = Movie.objects.get(id=movie_id)
+        except Movie.DoesNotExist:
+            return Response({'error': "Фильм не найден"}, status=404)
+
+        if FavouriteMovie.objects.filter(user=user, movie=movie).exists():
+            return Response({'message': "Вы уже добавили этот фильм"}, status=400)
+
+        FavouriteMovie.objects.create(user=user, movie=movie)
+        return Response({'message': "Фильм добавлен в избранное"})

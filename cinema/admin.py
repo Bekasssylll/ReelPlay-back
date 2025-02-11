@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSubscription, Comment
+from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSubscription, Comment, FavouriteMovie
 
 
 @admin.register(Movie)
@@ -47,3 +47,7 @@ class TypeSubscriptionAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('movie', 'user', 'text', 'created_at', 'updated_at')
     list_filter = ('movie', 'user', 'created_at', 'updated_at')
+
+@admin.register(FavouriteMovie)
+class FavouriteMovieAdmin(admin.ModelAdmin):
+    list_display = ('user','movie')
