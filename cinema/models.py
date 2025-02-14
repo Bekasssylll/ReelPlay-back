@@ -26,6 +26,7 @@ class Movie(models.Model):
     CATEGORY_CHOICES = [
         ('movie', 'Фильм'),
         ('series', 'Сериал'),
+        ('cartoon','Мультфильм')
     ]
 
     title = models.CharField(max_length=25)
@@ -63,3 +64,5 @@ class Comment(models.Model):
 class FavouriteMovie(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie,on_delete=models.CASCADE)
+
+

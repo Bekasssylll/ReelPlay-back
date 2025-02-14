@@ -11,11 +11,15 @@ from cinema.serializers import MovieSerializer, RegisterSerializer, Subscription
 from django.core.mail import send_mail
 
 from reelsetting.settings import EMAIL_HOST_USER
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['category']
 
     def retrieve(self, request, *args, **kwargs):
         user = request.user
