@@ -19,7 +19,7 @@ class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['category']
+    filterset_fields = ['category','genre']
 
     def retrieve(self, request, *args, **kwargs):
         user = request.user

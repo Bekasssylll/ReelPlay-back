@@ -28,6 +28,14 @@ class Movie(models.Model):
         ('series', 'Сериал'),
         ('cartoon','Мультфильм')
     ]
+    GENRE_CHOICES = [
+        ("comedy", "Комедия"),
+        ("drama", "Драма"),
+        ("horror", "Ужасы"),
+        ("fantasy", "Фэнтези"),
+        ("action", "Боевик"),
+        ("thriller", "Триллер"),
+    ]
 
     title = models.CharField(max_length=25)
     type = models.ForeignKey(TypeSubscription, on_delete=models.CASCADE, default=4)
@@ -35,6 +43,10 @@ class Movie(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     subscription = models.BooleanField(default=False)
     video_url = models.URLField(null=True, blank=True)
+    genre = models.CharField(
+        max_length=15,
+        choices= GENRE_CHOICES,
+        default='horror')
     category = models.CharField(
         max_length=10,
         choices=CATEGORY_CHOICES,
