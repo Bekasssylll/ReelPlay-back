@@ -26,7 +26,7 @@ class Movie(models.Model):
     CATEGORY_CHOICES = [
         ('movie', 'Фильм'),
         ('series', 'Сериал'),
-        ('cartoon','Мультфильм')
+        ('cartoon', 'Мультфильм')
     ]
     GENRE_CHOICES = [
         ("comedy", "Комедия"),
@@ -43,9 +43,10 @@ class Movie(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     subscription = models.BooleanField(default=False)
     video_url = models.URLField(null=True, blank=True)
+    year = models.PositiveIntegerField(default=0)
     genre = models.CharField(
         max_length=15,
-        choices= GENRE_CHOICES,
+        choices=GENRE_CHOICES,
         default='horror')
     category = models.CharField(
         max_length=10,
@@ -74,7 +75,22 @@ class Comment(models.Model):
 
 
 class FavouriteMovie(models.Model):
-    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie,on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
 
 
+class Rating(models.Model):
+    RATING = [
+        (1, 'Очень плохо'),
+        (2, 'Плохо'),
+        (3, 'Нейтрально'),
+        (4, 'Хорошо'),
+        (5, 'Отлично'),
+    ]
+
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='ratings')
+    rating = models.CharField(max_length=15, choices=RATING, default='neutral')
+
+    class Meta:
+        unique_together = ('user', 'movie')

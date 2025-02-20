@@ -24,12 +24,13 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 from cinema.views import MovieViewSet, RegisterApiView, LoginApiView, SubscriptionServiceViewSet, ProfileApiView, \
-    ActivateSubscription, CommentViewSet, AddFavouriteMovie
+    ActivateSubscription, CommentViewSet, AddFavouriteMovie, RatingViewSet
 
 router = SimpleRouter()
 router.register(r"movie", MovieViewSet, basename='movie')
 router.register(r"subscription", SubscriptionServiceViewSet, basename='subscription')
 router.register(r"comment", CommentViewSet, basename='Comment')
+router.register(r"rating", RatingViewSet, basename='Ratingss')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -41,5 +42,5 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('profile/', ProfileApiView.as_view(), name='profile'),
     path('activate/', ActivateSubscription.as_view(), name='activate'),
-    path('favourites/',AddFavouriteMovie.as_view(),name='favourites')
+    path('favourites/', AddFavouriteMovie.as_view(), name='favourites'),
 ]

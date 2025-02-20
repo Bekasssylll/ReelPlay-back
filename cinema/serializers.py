@@ -1,10 +1,19 @@
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
+from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
-from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from cinema.models import Movie, CustomUser, SubscriptionService, Comment, TypeSubscription
+from cinema.models import Movie, CustomUser, SubscriptionService, Comment, TypeSubscription, Rating
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    average_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Rating
+        fields = ['movie', 'rating', 'average_rating']
+
+    def get_average_rating(self, obj):
+        return Rating.objects.aggregate(Avg('rating'))['rating__avg']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -17,10 +26,11 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class MovieSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    ratings = RatingSerializer(many=True, read_only=True)
 
     class Meta:
         model = Movie
-        fields = ['title', 'description', 'author','category','genre', 'comments']
+        fields = ['title', 'description', 'author', 'category', 'genre', 'year', 'comments', 'ratings']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

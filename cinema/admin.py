@@ -1,14 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from cinema.models import Author, Movie, CustomUser, SubscriptionService, TypeSubscription, Comment, FavouriteMovie
+from cinema.models import Author, Movie,SubscriptionService, TypeSubscription, Comment, FavouriteMovie, \
+    Rating
 
 
 @admin.register(Movie)
 class MovieRegister(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'author', 'subscription','genre','category','type','type_level','video_url')
+    list_display = (
+    'id', 'title', 'description', 'author', 'subscription', 'year', 'genre', 'category', 'type', 'type_level',
+    'video_url')
     list_filter = ('title',)
-    def type_level(self,obj):
+
+    def type_level(self, obj):
         return obj.type.level
 
 
@@ -39,7 +43,7 @@ class SubscriptionServiceAdmin(admin.ModelAdmin):
 
 @admin.register(TypeSubscription)
 class TypeSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id','name','level',)
+    list_display = ('id', 'name', 'level',)
     list_filter = ('name',)
 
 
@@ -48,6 +52,12 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('movie', 'user', 'text', 'created_at', 'updated_at')
     list_filter = ('movie', 'user', 'created_at', 'updated_at')
 
+
 @admin.register(FavouriteMovie)
 class FavouriteMovieAdmin(admin.ModelAdmin):
-    list_display = ('user','movie')
+    list_display = ('user', 'movie')
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'movie', 'rating')

@@ -1,14 +1,17 @@
 from django.contrib.auth import authenticate
+from django.db.models import Avg
+from django.http import Http404
 from rest_framework import viewsets, status
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment, FavouriteMovie
+from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment, FavouriteMovie, Rating
 from cinema.serializers import MovieSerializer, RegisterSerializer, SubscriptionServiceSerializer, ProfileSerializer, \
-    CommentSerializer, SubscriptionServiceSerializer
+    CommentSerializer, SubscriptionServiceSerializer, RatingSerializer
 from django.core.mail import send_mail
+from rest_framework.exceptions import NotFound
 
 from reelsetting.settings import EMAIL_HOST_USER
 from rest_framework import viewsets, filters
@@ -23,7 +26,11 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         user = request.user
-        movie = self.get_object()
+        try:
+            movie = self.get_object()
+        except Http404:
+            raise NotFound({"message":"Неправильная ссылка"})
+
 
         if movie.type:
             user_subscription = SubscriptionService.objects.filter(user=user).order_by('-type__level').first()
@@ -168,3 +175,10 @@ class AddFavouriteMovie(APIView):
 
         FavouriteMovie.objects.create(user=user, movie=movie)
         return Response({'message': "Фильм добавлен в избранное"})
+
+class RatingViewSet(viewsets.ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
