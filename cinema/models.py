@@ -38,8 +38,9 @@ class Movie(models.Model):
     ]
 
     title = models.CharField(max_length=25)
-    type = models.ForeignKey(TypeSubscription, on_delete=models.CASCADE, default=4)
+    type = models.ForeignKey(TypeSubscription, on_delete=models.CASCADE, default=3)
     description = models.TextField()
+    image = models.URLField(max_length=1500,blank=True,default='https://www.iphones.ru/wp-content/uploads/2015/05/errfolder.jpg')
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     subscription = models.BooleanField(default=False)
     video_url = models.URLField(null=True, blank=True)

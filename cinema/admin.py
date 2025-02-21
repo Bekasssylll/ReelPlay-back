@@ -9,7 +9,7 @@ from cinema.models import Author, Movie,SubscriptionService, TypeSubscription, C
 class MovieRegister(admin.ModelAdmin):
     list_display = (
     'id', 'title', 'description', 'author', 'subscription', 'year', 'genre', 'category', 'type', 'type_level',
-    'video_url')
+    'video_url','image')
     list_filter = ('title',)
 
     def type_level(self, obj):
@@ -18,7 +18,7 @@ class MovieRegister(admin.ModelAdmin):
 
 @admin.register(Author)
 class AuthorRegister(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('id','name',)
     list_filter = ('name',)
 
 
