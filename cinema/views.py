@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from cinema.filter import MovieFilter
 from cinema.models import Movie, SubscriptionService, TypeSubscription, Comment, FavouriteMovie, Rating
 from cinema.serializers import MovieSerializer, RegisterSerializer, SubscriptionServiceSerializer, ProfileSerializer, \
     CommentSerializer, SubscriptionServiceSerializer, RatingSerializer
@@ -22,7 +24,7 @@ class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['category','genre']
+    filterset_class = MovieFilter
 
     def retrieve(self, request, *args, **kwargs):
         user = request.user
